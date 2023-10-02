@@ -1,0 +1,193 @@
+# Kimberly Mazel
+# 2502022250
+# Computational Biology Assignment 1
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+#--------------------------------- QUESTION 1 ---------------------------------#
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+
+# Translate a DNA sequence to mRNA (Using "U" instead of "T")
+# into an amino acid sequence (protein)
+
+# CHECK IF STRING IS VALID
+def validate_dna(dna_seq):
+    seqm = dna_seq.upper()
+    valid = seqm.count("A") + seqm.count("T") + seqm.count("G") + seqm.count("C")
+
+    if valid == len(seqm):
+        # print("Valid")
+        return True
+    else:
+        # print("Invalid")
+        return False
+
+# TRANSCRIPT THE DNA INTO COMPLEMENT
+def reverse_complement(dna, type):
+    assert validate_dna(dna), "Invalid"
+    rev = ""
+    codon = ""
+
+    if type.upper() == "MRNA":
+        codon = "U"
+    else:
+        codon = "T"
+
+    for c in dna.upper():
+        if c == "A":
+            rev += codon
+
+        elif c == "T":
+            rev += "A"
+
+        elif c == "G":
+            rev += "C"
+
+        elif c == "C":
+            rev += "G"
+    
+    # print(rev)
+    return rev
+
+# TRANSLATE INTO CODON
+def translate_codon(cod):
+    tc = {
+        "GCU":"Ala (A)", "GCC":"Ala (A)", "GCA":"Ala (A)", "GCG":"Ala (A)",
+        "UGU":"Cys (C)", "UGC":"Cys (C)",
+        "GAU":"Asp (D)", "GAC":"Asp (D)",
+        "GAA":"Glu (E)", "GAG":"Glu (E)",
+        "UUU":"Phe (F)", "UUC":"Phe (F)",
+        "GGU":"Gly (G)", "GGC":"Gly (G)", "GGA":"Gly (G)", "GGG":"Gly (G)",
+        "CAU":"His (H)", "CAC":"His (H)",
+        "AUA":"Ile (I)", "AUU":"Ile (I)", "AUC":"Ile (I)",
+        "AAA":"Lys (K)", "AAG":"Lys (K)",
+        "UUA":"Leu (L)", "UUG":"Leu (L)", "CUU":"Leu (L)", 
+        "CUA":"Leu (L)", "CUG":"Leu (L)",
+        "AUG":"Met (M)", 
+        "AAU":"Asn (N)", "AAC":"Asn (N)",
+        "CCU":"Pro (P)", "CCC":"Pro (P)", "CCA":"Pro (P)", "CCG":"Pro (P)",
+        "CAA":"Gln (Q)", "CAG":"Gln (Q)",
+        "CGU":"Arg (R)", "CGC":"Arg (R)", "CGA":"Arg (R)", 
+        "CGG":"Arg (R)", "AGA":"Arg (R)","AGG":"Arg (R)",
+        "UCU":"Ser (S)", "UCC":"Ser (S)",  "UCA":"Ser (S)", 
+        "UCG":"Ser (S)", "AGU":"Ser (S)", "AGC":"Ser (S)",
+        "ACU":"Thr (T)", "ACC":"Thr (T)", "ACA":"Thr (T)", "ACG":"Thr (T)",
+        "GUU":"Val (V)", "GUC":"Val (V)", "GUA":"Val (V)", "GUG":"Val (V)",
+        "UGG":"Trp (W)",
+        "UAU":"Tyr (Y)", "UAC":"Tyr (Y)",
+        "UAA":"_", "UAG":"_", "UGA":"_"
+    }
+
+    if cod in tc:
+        return tc[cod]
+    else:
+        return None
+
+# TRANSLATE mRNA INTO AMINO ACID SEQUENCE
+def translate_mrna(dna):
+    mrna = reverse_complement(dna, "mrna")
+    aminoacid = ""
+
+    for i in range(0, len(mrna), 3):
+        cod = mrna[i: i+3]
+        aminoacid += translate_codon(cod) + " - "
+    
+    aminoacid = aminoacid.rstrip(" - ")
+
+    print("Input DNA: " + dna)
+    print("Complement: " + reverse_complement(dna, "dna"))
+    print("mRNA: " + mrna)
+    print("Amino Acids: " + aminoacid)
+    return aminoacid
+
+# ---------------------- #
+# UNCOMMENT THIS TO TEST #
+# ---------------------- #
+# translate_mrna("TTACGA")
+
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+#--------------------------------- QUESTION 2 ---------------------------------#
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+
+# Provide the frequency of each RNA codon encoding a given amino acid, in DNA
+
+# VALIDATES INPUT AMINO
+def validate_amino(amino):
+    letters = [
+        "A", "C", "D", "E", "F", "G",
+        "H", "I", "K", "L", "M", "N",
+        "P", "Q", "R", "S", "T", "V",
+        "W", "Y", "_"
+    ]
+
+    for i in amino.upper():
+        if i not in letters:
+            return False
+    return True
+
+# TRANSLATES LETTER BASE TO CODON
+def translate_amino(amac):
+    ta = {
+        "A": "GCU", "C": "UGU", "D": "GAU",
+        "E": "GAA", "F": "UUU", "G": "GGU",
+        "H": "CAU", "I": "AUA", "K": "AAA",
+        "L": "UUA", "M": "AUG", "N": "AAU",
+        "P": "CCU", "Q": "CAA", "R": "CGU",
+        "S": "UCU", "T": "ACU", "V": "GUU",
+        "W": "UGG", "Y": "UAU", "_": "UAA"
+    }
+
+    if amac in ta:
+        return ta[amac]
+    else:
+        return None
+
+# TRANSLATES AMINO ACID INTO STRING OF mRNA
+def translate_protein(amino):
+    acid = amino.upper()
+    mrna = ""
+
+    for i in acid:
+        mrna += translate_amino(i)
+    
+    return mrna
+
+# COUNTS FREQUENCY OF EACH CODON
+def frequency(seq):
+    dic = {}
+
+    for s in range(0, len(seq), 3):
+        cod = seq[s: s+3]
+        
+        if cod in dic:
+            dic[cod] += 1
+        else:
+            dic[cod] = 1
+    
+    # print(dic)
+    return dic
+
+# PROVIDES FREQUENCY OF EACH RNA CODON FROM A GIVEN AMINO ACID
+def frequency_rna(aminoacid):
+    assert validate_amino(aminoacid), "Sequence is invalid"
+    
+    mrna = translate_protein(aminoacid)
+    freq = frequency(mrna)
+
+    print("Input Amino Acid: " + aminoacid)
+    print("mRNA: " + mrna)
+    
+    # Prints frequency of each codon in separate lines
+    for key, value in freq.items():
+        print(f"{key}: {value}")
+    
+    return
+
+# ---------------------- #
+# UNCOMMENT THIS TO TEST #
+# ---------------------- #
+# frequency_rna("NAN")
